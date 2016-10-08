@@ -1,6 +1,7 @@
 package com.free.dennisg.bittrackr;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -89,6 +90,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Intent preferencesActivity = new Intent(this, Preferences.class);
+            startActivity(preferencesActivity);
+
             return true;
         }
 
@@ -185,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             try {
                 JSONObject jObject = new JSONObject(result);
                 JSONObject oneObject = jObject.getJSONObject("USD");
-                // Pulling items from the array
+
                 double delayed15mValue = oneObject.getDouble("15m");
                 double lastValue = oneObject.getDouble("last");
                 double buyValue = oneObject.getDouble("buy");
