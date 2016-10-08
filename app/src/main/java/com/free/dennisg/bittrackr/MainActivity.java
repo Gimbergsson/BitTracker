@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,13 +28,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import lecho.lib.hellocharts.model.PieChartData;
+import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.util.ChartUtils;
+import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     TextView txtJson;
     ProgressDialog pd;
+
+    PieChartView pieChartView;
+    PieChartData pieChartData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +57,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 new JsonTask().execute("https://blockchain.info/ticker");
-                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton getChart = (FloatingActionButton) findViewById(R.id.getChart);
+        getChart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new JsonTask().execute("https://blockchain.info/pools?format=json");
+                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             }
         });
 
@@ -60,6 +78,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        pieChartView = (PieChartView) findViewById(R.id.chart);
+
+        int numValues = 6;
+
+        List<SliceValue> values = new ArrayList<SliceValue>();
+        for (int i = 0; i < numValues; ++i) {
+            SliceValue sliceValue = new SliceValue((float) Math.random() * 30 + 15, ChartUtils.pickColor());
+            values.add(sliceValue);
+        }
+
+        pieChartData = new PieChartData(values);
+        pieChartData.setHasLabels(true);
+
+        pieChartView.setPieChartData(pieChartData);
+
 
         txtJson = (TextView) findViewById(R.id.tvJsonItem);
     }
@@ -186,19 +220,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (pd.isShowing()) {
                 pd.dismiss();
             }
-
+            /*
             try {
                 JSONObject jObject = new JSONObject(result);
-                JSONObject oneObject = jObject.getJSONObject("USD");
+                JSONObject currencyUSDObject = jObject.getJSONObject("USD");
 
-                double delayed15mValue = oneObject.getDouble("15m");
-                double lastValue = oneObject.getDouble("last");
-                double buyValue = oneObject.getDouble("buy");
-                double sellValue = oneObject.getDouble("sell");
-                String symbol = oneObject.getString("symbol");
+                double delayed15mUSD = currencyUSDObject.getDouble("15m");
+                double lastUSD = currencyUSDObject.getDouble("last");
+                double buyUSD = currencyUSDObject.getDouble("buy");
+                double sellUSD = currencyUSDObject.getDouble("sell");
+                String symbolUSD = currencyUSDObject.getString("symbol");
 
-                txtJson.setText(symbol + "\n15m: " + String.valueOf(delayed15mValue) + "\nLast: " + String.valueOf(lastValue)
-                        + "\nBuy: " + String.valueOf(buyValue) + "\nSell: " + String.valueOf(sellValue));
+                txtJson.setText(symbolUSD + "\n15m: " + String.valueOf(delayed15mUSD) + "\nLast: " + String.valueOf(lastUSD)
+                        + "\nBuy: " + String.valueOf(buyUSD) + "\nSell: " + String.valueOf(sellUSD));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            */
+            try {
+                JSONObject jObject = new JSONObject(result);
+
+                int jObjectLength = jObject.length();
+                pieChartView = (PieChartView) findViewById(R.id.chart);
+
+                List<SliceValue> values = new ArrayList<SliceValue>();
+                for (int i = 0; i < jObjectLength; ++i) {
+
+                    JSONArray jObjectArray = jObject.names();
+                    Object jObjectName = jObjectArray.get(i);
+                    int jObjectValue = jObject.getInt(jObjectName.toString());
+
+                    SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
+                    sliceValue.setLabel(jObjectName.toString());
+                    values.add(sliceValue);
+                }
+
+                pieChartData = new PieChartData(values);
+                pieChartData.setHasLabels(true);
+                pieChartView.setPieChartData(pieChartData);
+                txtJson.setText(String.valueOf(jObjectLength));
 
             } catch (JSONException e) {
                 e.printStackTrace();
