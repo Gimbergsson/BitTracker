@@ -32,9 +32,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PieChartData;
-import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.util.ChartUtils;
+import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     PieChartView pieChartView;
     PieChartData pieChartData;
 
+    LineChartView lineChartView;
+    LineChartData lineChartData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton getUSDValueBtn = (FloatingActionButton) findViewById(R.id.getUSDValueBtn);
+        getUSDValueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new JsonTask().execute("https://blockchain.info/ticker");
@@ -61,11 +69,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        FloatingActionButton getChart = (FloatingActionButton) findViewById(R.id.getChart);
-        getChart.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton getPieChartBtn = (FloatingActionButton) findViewById(R.id.getPieChartBtn);
+        getPieChartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new JsonTask().execute("https://blockchain.info/pools?format=json");
+                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton getLineChartBtn = (FloatingActionButton) findViewById(R.id.getLineChartBtn);
+        getLineChartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new JsonTask().execute("https://blockchain.info/charts/market-price?format=json");
                 Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             }
         });
@@ -79,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        /*
         pieChartView = (PieChartView) findViewById(R.id.chart);
 
         int numValues = 6;
@@ -93,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pieChartData.setHasLabels(true);
 
         pieChartView.setPieChartData(pieChartData);
-
+        */
 
         txtJson = (TextView) findViewById(R.id.tvJsonItem);
     }
@@ -164,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         protected void onPreExecute() {
             super.onPreExecute();
-
             pd = new ProgressDialog(MainActivity.this);
             pd.setMessage("Please wait");
             pd.setCancelable(false);
@@ -172,31 +189,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         protected String doInBackground(String... params) {
-
-
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-
             try {
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
-
                 InputStream stream = connection.getInputStream();
-
                 reader = new BufferedReader(new InputStreamReader(stream));
-
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
-
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line + "\n");
                     Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
                 }
-
                 return stringBuilder.toString();
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -215,11 +222,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(final String result) {
             super.onPostExecute(result);
             if (pd.isShowing()) {
                 pd.dismiss();
             }
+
+            // Gets this json from https://blockchain.info/ticker and gets the values of the USD json object and print them out in a TextView
             /*
             try {
                 JSONObject jObject = new JSONObject(result);
@@ -238,17 +247,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 e.printStackTrace();
             }
             */
+
+            // Gets a json from https://blockchain.info/pools?format=json then displays the values as a pie chart with the happycharts library
+            /*
             try {
                 JSONObject jObject = new JSONObject(result);
 
                 int jObjectLength = jObject.length();
-                pieChartView = (PieChartView) findViewById(R.id.chart);
+                pieChartView = (PieChartView) findViewById(R.id.pieChartView);
 
                 List<SliceValue> values = new ArrayList<SliceValue>();
                 for (int i = 0; i < jObjectLength; ++i) {
 
-                    JSONArray jObjectArray = jObject.names();
-                    Object jObjectName = jObjectArray.get(i);
+
                     int jObjectValue = jObject.getInt(jObjectName.toString());
 
                     SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
@@ -264,7 +275,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            */
+
+
+            try{
+                final JSONObject jObject = new JSONObject(result);
+
+                //int jObjectLength = jObject.length();
+
+                final int numberOfLines = 1;
+                //int numberOfPoints = 12;
+
+                lineChartView = (LineChartView) findViewById(R.id.linearChartView);
+
+                final JSONArray jObjectArray = jObject.getJSONArray("values");
+                final int jObjectArrayLength = jObjectArray.length();
+                final int numberOfPoints = jObjectArrayLength / 10;
+                Log.e("TAG jObjectArrayLength", String.valueOf(jObjectArrayLength));
+
+                List<Line> lines = new ArrayList<Line>();
+                for (int i = 0; i < numberOfPoints; ++i) {
+
+                    JSONObject getPointsObject = jObjectArray.getJSONObject(i);
+                    Log.e("TAG xValueDouble", String.valueOf(getPointsObject.getDouble("x")));
+                    float xValue = (float) getPointsObject.getDouble("x");
+                    float yValue = (float) getPointsObject.getDouble("y");
+                    Log.e("TAG xValue", String.valueOf(xValue + ", " + yValue));
+                    Log.e("TAG i", String.valueOf(i));
+
+                    for (int x = 0; x < numberOfLines; ++x) {
+
+                        List<PointValue> values = new ArrayList<PointValue>();
+
+                        //jObjectArrayLength == numberOfPoints
+                        for (int j = 0; j < numberOfPoints; ++j) {
+                            values.add(new PointValue(xValue, yValue));
+                        }
+
+                        Line line = new Line(values);
+                        line.setColor(1);
+                        line.setShape(ValueShape.CIRCLE);
+                        line.setCubic(true);
+                        line.setFilled(true);
+                        line.setHasLabels(false);
+                        line.setHasLabelsOnlyForSelected(false);
+                        line.setHasLines(true);
+                        line.setHasPoints(true);
+                        lines.add(line);
+
+                    }
+                }
+                lineChartData = new LineChartData(lines);
+                lineChartView.setLineChartData(lineChartData);
+                txtJson.setText(String.valueOf(jObjectArrayLength));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
-}
