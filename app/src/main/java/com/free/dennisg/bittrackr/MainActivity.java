@@ -2,6 +2,7 @@ package com.free.dennisg.bittrackr;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,6 +39,7 @@ import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.ValueShape;
+import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.util.ChartUtils;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
@@ -290,10 +292,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 final JSONArray jObjectArray = jObject.getJSONArray("values");
                 final int jObjectArrayLength = jObjectArray.length();
-                final int numberOfPoints = jObjectArrayLength / 10;
+                final int numberOfPoints = jObjectArrayLength / 2;
                 Log.e("TAG jObjectArrayLength", String.valueOf(jObjectArrayLength));
 
-                List<Line> lines = new ArrayList<Line>();
                 for (int i = 0; i < numberOfPoints; ++i) {
 
                     JSONObject getPointsObject = jObjectArray.getJSONObject(i);
@@ -303,30 +304,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.e("TAG xValue", String.valueOf(xValue + ", " + yValue));
                     Log.e("TAG i", String.valueOf(i));
 
-                    for (int x = 0; x < numberOfLines; ++x) {
+                    /*for (int x = 0; x < numberOfLines; ++x) {
 
-                        List<PointValue> values = new ArrayList<PointValue>();
+                    }*/
 
-                        //jObjectArrayLength == numberOfPoints
-                        for (int j = 0; j < numberOfPoints; ++j) {
-                            values.add(new PointValue(xValue, yValue));
-                        }
+                    List<PointValue> values = new ArrayList<PointValue>();
 
-                        Line line = new Line(values);
-                        line.setColor(1);
-                        line.setShape(ValueShape.CIRCLE);
-                        line.setCubic(true);
-                        line.setFilled(true);
-                        line.setHasLabels(false);
-                        line.setHasLabelsOnlyForSelected(false);
-                        line.setHasLines(true);
-                        line.setHasPoints(true);
-                        lines.add(line);
-
+                    //jObjectArrayLength == numberOfPoints
+                    for (int j = 0; j < 12; ++j) {
+                        values.add(new PointValue(xValue, yValue));
                     }
+
+                    Line line = new Line(values).setColor(Color.BLUE).setCubic(true);
+                    line.setStrokeWidth(3);
+
+                    List<Line> lines = new ArrayList<Line>();
+                    lines.add(line);
+
+                    final Viewport v = new Viewport(lineChartView.getMaximumViewport());
+                    v.bottom = -5;
+                    v.top = xValue + 100;
+                    // You have to set max and current viewports separately.
+                    lineChartView.setMaximumViewport(v);
+                    // I changing current viewport with animation in this case.
+                    lineChartView.setCurrentViewportWithAnimation(v);
+
+                    lineChartData = new LineChartData(lines);
+                    lineChartView.setLineChartData(lineChartData);
+
                 }
-                lineChartData = new LineChartData(lines);
-                lineChartView.setLineChartData(lineChartData);
                 txtJson.setText(String.valueOf(jObjectArrayLength));
                 } catch (JSONException e) {
                     e.printStackTrace();
