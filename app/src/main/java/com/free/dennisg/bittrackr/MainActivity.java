@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 final JSONArray jObjectArray = jObject.getJSONArray("values");
                 final int jObjectArrayLength = jObjectArray.length();
-                final int numberOfPoints = jObjectArrayLength / 2;
+                final int numberOfPoints = jObjectArrayLength;
                 Log.e("TAG jObjectArrayLength", String.valueOf(jObjectArrayLength));
 
                 for (int i = 0; i < numberOfPoints; ++i) {
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     List<PointValue> values = new ArrayList<PointValue>();
 
                     //jObjectArrayLength == numberOfPoints
-                    for (int j = 0; j < 12; ++j) {
+                    for (int j = 0; j < jObjectArrayLength; ++j) {
                         values.add(new PointValue(xValue, yValue));
                     }
 
@@ -323,13 +323,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     final Viewport v = new Viewport(lineChartView.getMaximumViewport());
                     v.bottom = -5;
-                    v.top = xValue + 100;
+                    v.top = xValue + 2;
                     // You have to set max and current viewports separately.
                     lineChartView.setMaximumViewport(v);
                     // I changing current viewport with animation in this case.
                     lineChartView.setCurrentViewportWithAnimation(v);
 
                     lineChartData = new LineChartData(lines);
+
+                    Axis axisX = new Axis();
+                    Axis axisY = new Axis().setHasLines(true);
+                    axisX.setName("Axis X");
+                    axisY.setName("Axis Y");
+                    lineChartData.setAxisXBottom(axisX);
+                    lineChartData.setAxisYLeft(axisY);
+
+                    lineChartData.setBaseValue(Float.NEGATIVE_INFINITY);
                     lineChartView.setLineChartData(lineChartData);
 
                 }
