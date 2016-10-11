@@ -18,7 +18,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +40,7 @@ import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.util.ChartUtils;
@@ -62,12 +65,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton getUSDValueBtn = (FloatingActionButton) findViewById(R.id.getUSDValueBtn);
-        getUSDValueBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new JsonTask().execute("https://blockchain.info/ticker");
-                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+
+        SeekBar volumeControl = (SeekBar) findViewById(R.id.daysSeekBar);
+        volumeControl.setMax(9);
+        volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressValue = 1;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                progressValue = progress;
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(MainActivity.this,"seek bar progress: "+ progressValue, Toast.LENGTH_SHORT).show();
+                new JsonTask().execute("https://blockchain.info/pools?timespan=" + progressValue +"days&format=json");
             }
         });
 
@@ -75,16 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getPieChartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new JsonTask().execute("https://blockchain.info/pools?format=json");
-                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-            }
-        });
-
-        FloatingActionButton getLineChartBtn = (FloatingActionButton) findViewById(R.id.getLineChartBtn);
-        getLineChartBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new JsonTask().execute("https://blockchain.info/charts/market-price?format=json");
+                new JsonTask().execute("https://blockchain.info/pools?timespan=1days&format=json");
                 Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             }
         });
@@ -251,22 +256,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             */
 
             // Gets a json from https://blockchain.info/pools?format=json then displays the values as a pie chart with the happycharts library
-            /*
             try {
                 JSONObject jObject = new JSONObject(result);
 
                 int jObjectLength = jObject.length();
                 pieChartView = (PieChartView) findViewById(R.id.pieChartView);
-
                 List<SliceValue> values = new ArrayList<SliceValue>();
                 for (int i = 0; i < jObjectLength; ++i) {
 
-
+                    JSONArray jObjectArray = jObject.names();
+                    Object jObjectName = jObjectArray.get(i);
                     int jObjectValue = jObject.getInt(jObjectName.toString());
 
                     SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
                     sliceValue.setLabel(jObjectName.toString());
                     values.add(sliceValue);
+
                 }
 
                 pieChartData = new PieChartData(values);
@@ -277,9 +282,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            */
 
-
+            /*
             try{
                 final JSONObject jObject = new JSONObject(result);
 
@@ -304,9 +308,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.e("TAG xValue", String.valueOf(xValue + ", " + yValue));
                     Log.e("TAG i", String.valueOf(i));
 
-                    /*for (int x = 0; x < numberOfLines; ++x) {
+                    for (int x = 0; x < numberOfLines; ++x) {
 
-                    }*/
+                    }
 
                     List<PointValue> values = new ArrayList<PointValue>();
 
@@ -345,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 txtJson.setText(String.valueOf(jObjectArrayLength));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
         }
     }

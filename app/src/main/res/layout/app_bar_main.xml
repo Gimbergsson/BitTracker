@@ -24,14 +24,6 @@
     <include layout="@layout/content_main" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/getUSDValueBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_popup_reminder" />
-
-    <android.support.design.widget.FloatingActionButton
         android:id="@+id/getPieChartBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,14 +31,5 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_menu_manage" />
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/getLineChartBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_alert"
-        app:layout_anchorGravity="center_vertical|left"/>
 
 </android.support.design.widget.CoordinatorLayout>
