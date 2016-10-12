@@ -49,7 +49,7 @@ import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    TextView txtJson;
+    TextView debugOutputText, chartTitleText;
     ProgressDialog pd;
 
     PieChartView pieChartView;
@@ -65,14 +65,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        debugOutputText = (TextView) findViewById(R.id.debugOutputText);
+        chartTitleText = (TextView) findViewById(R.id.chartTitleText);
 
         SeekBar volumeControl = (SeekBar) findViewById(R.id.daysSeekBar);
-        volumeControl.setMax(9);
         volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progressValue = 1;
+            int progressValue = 0;
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-                progressValue = progress;
+                progressValue = progress + 1;
+                chartTitleText.setText("Hashrate Distribution of " + String.valueOf(progressValue) + " Day(s)");
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Toast.makeText(MainActivity.this,"seek bar progress: "+ progressValue, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"seek bar progress: "+ progressValue, Toast.LENGTH_SHORT).show();
                 new JsonTask().execute("https://blockchain.info/pools?timespan=" + progressValue +"days&format=json");
             }
         });
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             }
         });
+        new JsonTask().execute("https://blockchain.info/pools?timespan=1days&format=json");
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -119,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         pieChartView.setPieChartData(pieChartData);
         */
-
-        txtJson = (TextView) findViewById(R.id.tvJsonItem);
     }
 
     @Override
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onPreExecute();
             pd = new ProgressDialog(MainActivity.this);
             pd.setMessage("Please wait");
-            pd.setCancelable(false);
+            pd.setCancelable(true);
             pd.show();
         }
 
@@ -269,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     int jObjectValue = jObject.getInt(jObjectName.toString());
 
                     SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
-                    sliceValue.setLabel(jObjectName.toString());
+                    sliceValue.setLabel(jObjectName.toString() + " " + String.valueOf(jObjectValue));
                     values.add(sliceValue);
 
                 }
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 pieChartData = new PieChartData(values);
                 pieChartData.setHasLabels(true);
                 pieChartView.setPieChartData(pieChartData);
-                txtJson.setText(String.valueOf(jObjectLength));
+                debugOutputText.setText(String.valueOf(jObjectLength));
 
             } catch (JSONException e) {
                 e.printStackTrace();

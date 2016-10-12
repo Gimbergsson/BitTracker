@@ -19,14 +19,14 @@
         android:layout_height="wrap_content"
         android:max="9"
         android:progress="0"
-        android:layout_below="@+id/chartTypeText"
+        android:layout_below="@+id/chartTitleText"
         android:id="@+id/daysSeekBar"/>
 
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="debug_text"
-        android:id="@+id/tvJsonItem"
+        android:id="@+id/debugOutputText"
         android:scrollbars="vertical"
         android:layout_alignParentEnd="false"
         android:layout_alignParentBottom="true"
@@ -36,8 +36,8 @@
         android:text="DEBUG TEXT::"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tvJsonItem"
-        android:layout_toStartOf="@+id/tvJsonItem"
+        android:layout_alignTop="@+id/debugOutputText"
+        android:layout_toStartOf="@+id/debugOutputText"
         android:id="@+id/debugText"/>
 
     <lecho.lib.hellocharts.view.PieChartView
@@ -47,11 +47,11 @@
         android:layout_below="@+id/daysSeekBar"/>
 
     <TextView
-        android:text="1 Day Chart"
+        android:text="Hashrate Distribution of 1 Day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/chartTypeText"/>
+        android:id="@+id/chartTitleText"/>
 
 </RelativeLayout>
