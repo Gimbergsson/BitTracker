@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -18,6 +19,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +39,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
+import lecho.lib.hellocharts.listener.PieChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
@@ -50,13 +57,15 @@ import lecho.lib.hellocharts.view.PieChartView;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     TextView debugOutputText, chartTitleText;
-    ProgressDialog pd;
 
     PieChartView pieChartView;
     PieChartData pieChartData;
 
     LineChartView lineChartView;
     LineChartData lineChartData;
+
+    SmoothProgressBar smoothProgressBar;
+    Interpolator mCurrentInterpolator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         debugOutputText = (TextView) findViewById(R.id.debugOutputText);
         chartTitleText = (TextView) findViewById(R.id.chartTitleText);
 
-        SeekBar volumeControl = (SeekBar) findViewById(R.id.daysSeekBar);
-        volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        final SeekBar seekBar = (SeekBar) findViewById(R.id.daysSeekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressValue = 0;
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
@@ -91,37 +100,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getPieChartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new JsonTask().execute("https://blockchain.info/pools?timespan=1days&format=json");
-                Snackbar.make(view, "Getting JSON", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                new JsonTask().execute("https://blockchain.info/pools?timespan=7days&format=json");
+                Snackbar.make(view, "Displaying values for 1 week", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                seekBar.setProgress(6);
             }
         });
+
         new JsonTask().execute("https://blockchain.info/pools?timespan=1days&format=json");
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        /*
-        pieChartView = (PieChartView) findViewById(R.id.chart);
-
-        int numValues = 6;
-
-        List<SliceValue> values = new ArrayList<SliceValue>();
-        for (int i = 0; i < numValues; ++i) {
-            SliceValue sliceValue = new SliceValue((float) Math.random() * 30 + 15, ChartUtils.pickColor());
-            values.add(sliceValue);
-        }
-
-        pieChartData = new PieChartData(values);
-        pieChartData.setHasLabels(true);
-
-        pieChartView.setPieChartData(pieChartData);
-        */
     }
 
     @Override
@@ -190,10 +184,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         protected void onPreExecute() {
             super.onPreExecute();
-            pd = new ProgressDialog(MainActivity.this);
-            pd.setMessage("Please wait");
-            pd.setCancelable(true);
-            pd.show();
+            smoothProgressBar = (SmoothProgressBar) findViewById(R.id.progressbar);
+            smoothProgressBar.setSmoothProgressDrawableSpeed((float) 10);
+            smoothProgressBar.setSmoothProgressDrawableStrokeWidth((float) 15);
+            smoothProgressBar.setSmoothProgressDrawableSeparatorLength(0);
+            smoothProgressBar.setSmoothProgressDrawableInterpolator(new AccelerateDecelerateInterpolator());
+            smoothProgressBar.progressiveStart();
         }
 
         protected String doInBackground(String... params) {
@@ -232,12 +228,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPostExecute(final String result) {
             super.onPostExecute(result);
-            if (pd.isShowing()) {
-                pd.dismiss();
+            if (smoothProgressBar.isShown()) {
+                smoothProgressBar.progressiveStop();
             }
 
-            // Gets this json from https://blockchain.info/ticker and gets the values of the USD json object and print them out in a TextView
+            try {
+                JSONObject jObject = new JSONObject(result);
+
+                int jObjectLength = jObject.length();
+                pieChartView = (PieChartView) findViewById(R.id.pieChartView);
+                pieChartView.setOnValueTouchListener(new ValueTouchListener());
+                List<SliceValue> values = new ArrayList<SliceValue>();
+                for (int i = 0; i < jObjectLength; ++i) {
+
+                    JSONArray jObjectArray = jObject.names();
+                    Object jObjectName = jObjectArray.get(i);
+                    int jObjectValue = jObject.getInt(jObjectName.toString());
+
+                    SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
+                    sliceValue.setLabel(jObjectName.toString() + "\nBlocks:  " + String.valueOf(jObjectValue));
+                    values.add(sliceValue);
+
+                }
+
+                pieChartData = new PieChartData(values);
+                pieChartData.setHasLabels(true);
+                pieChartView.setPieChartData(pieChartData);
+                debugOutputText.setText(String.valueOf(jObjectLength));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             /*
+            // Gets this json from https://blockchain.info/ticker and gets the values of the USD json object and print them out in a TextView
             try {
                 JSONObject jObject = new JSONObject(result);
                 JSONObject currencyUSDObject = jObject.getJSONObject("USD");
@@ -254,38 +278,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            */
 
             // Gets a json from https://blockchain.info/pools?format=json then displays the values as a pie chart with the happycharts library
-            try {
-                JSONObject jObject = new JSONObject(result);
-
-                int jObjectLength = jObject.length();
-                pieChartView = (PieChartView) findViewById(R.id.pieChartView);
-                List<SliceValue> values = new ArrayList<SliceValue>();
-                for (int i = 0; i < jObjectLength; ++i) {
-
-                    JSONArray jObjectArray = jObject.names();
-                    Object jObjectName = jObjectArray.get(i);
-                    int jObjectValue = jObject.getInt(jObjectName.toString());
-
-                    SliceValue sliceValue = new SliceValue((float) jObjectValue, ChartUtils.pickColor());
-                    sliceValue.setLabel(jObjectName.toString() + " " + String.valueOf(jObjectValue));
-                    values.add(sliceValue);
-
-                }
-
-                pieChartData = new PieChartData(values);
-                pieChartData.setHasLabels(true);
-                pieChartView.setPieChartData(pieChartData);
-                debugOutputText.setText(String.valueOf(jObjectLength));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            /*
-            try{
                 final JSONObject jObject = new JSONObject(result);
 
                 //int jObjectLength = jObject.length();
@@ -353,4 +347,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }*/
             }
         }
+
+    private class ValueTouchListener implements PieChartOnValueSelectListener {
+
+        @Override
+        public void onValueSelected(int arcIndex, SliceValue value) {
+            Toast.makeText(MainActivity.this, "Blocks found: " + String.valueOf((int) value.getValue()), Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onValueDeselected() {
+            // TODO Auto-generated method stub
+
+        }
+
     }
+}

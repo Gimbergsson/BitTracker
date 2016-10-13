@@ -22,6 +22,16 @@
         android:layout_below="@+id/chartTitleText"
         android:id="@+id/daysSeekBar"/>
 
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:indeterminate="true"
+        android:indeterminateOnly="false"
+        android:layout_below="@+id/daysSeekBar"
+        app:spb_color="@color/colorAccent"/>
+
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -44,7 +54,7 @@
         android:id="@+id/pieChartView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/daysSeekBar"/>
+        android:layout_below="@+id/progressbar"/>
 
     <TextView
         android:text="Hashrate Distribution of 1 Day"
