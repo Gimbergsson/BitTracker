@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressValue = 0;
 
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressValue = progress + 1;
                 chartTitleText.setText("Hashrate Distribution of " + String.valueOf(progressValue) + " Day(s)");
             }
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             public void onStopTrackingTouch(SeekBar seekBar) {
                 //Toast.makeText(MainActivity.this,"seek bar progress: "+ progressValue, Toast.LENGTH_SHORT).show();
-                new JsonTask().execute("https://blockchain.info/pools?timespan=" + progressValue +"days&format=json");
+                new JsonTask().execute("https://blockchain.info/pools?timespan=" + progressValue + "days&format=json");
             }
         });
 
@@ -345,8 +345,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }*/
-            }
         }
+    }
+
 
     private class ValueTouchListener implements PieChartOnValueSelectListener {
 
