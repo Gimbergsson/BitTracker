@@ -37,7 +37,6 @@ public class TabActivity extends AppCompatActivity{
         mMiningItem = new AHBottomNavigationItem("Mining", R.drawable.ic_menu_gallery);
         mStatsItem = new AHBottomNavigationItem("Stats", R.drawable.ic_menu_manage);
         mUnconfirmedTransactions = new AHBottomNavigationItem("Mempool", R.drawable.ic_menu_share);
-        mUnconfirmedTransactions = new AHBottomNavigationItem(R.drawable.ic_menu_share);
 
         /*Add items to bottom navigation bar*/
         mBottomNavigation.addItem(mTransactionsItem);

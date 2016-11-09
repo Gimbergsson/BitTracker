@@ -4,7 +4,7 @@ package com.free.dennisg.bittrackr;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import com.free.dennisg.bittrackr.fragments.EmptyFragment;
+import com.free.dennisg.bittrackr.fragments.*;
 
 public class MainFragmentPagerAdapter extends FragmentPagerAdapter {
 
@@ -23,7 +23,7 @@ public class MainFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return EmptyFragment.newInstance(0);
+                return LookupAddressFragment.newInstance(0);
             case 1:
                 return EmptyFragment.newInstance(1);
             case 2:
