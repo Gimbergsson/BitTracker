@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.free.dennisg.bittrackr.R;
@@ -34,6 +36,11 @@ public class LookupAddressFragment extends Fragment {
     @BindView(R.id.final_balance) TextView final_balance_txt;
     @BindView(R.id.transactions) TextView transactions_txt;
 
+    @BindView(R.id.address_input)
+    EditText address_input_edittext;
+    @BindView(R.id.get_address_info)
+    Button get_address_info_button;
+
     String apiBaseURL = "https://blockchain.info/";
 
     public static LookupAddressFragment newInstance(int index) {
@@ -47,15 +54,19 @@ public class LookupAddressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("**Info**", "onCreateView");
-
         View view = inflater.inflate(R.layout.lookup_address_fragment, container, false);
         ButterKnife.bind(this, view);
 
-        getAddressDetails();
+        get_address_info_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getAddressDetails(address_input_edittext.getText().toString());
+            }
+        });
         return view;
     }
 
-    public void getAddressDetails(){
+    public void getAddressDetails(String address){
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -66,7 +77,7 @@ public class LookupAddressFragment extends Fragment {
                 .build();
 
         RetrofitAPI service = retrofit.create(RetrofitAPI.class);
-        Call<Address> call = service.getAddressDetails("1Gimbergzr2c3C5KcGjLZSM1cCUMW4PfyY");
+        Call<Address> call = service.getAddressDetails(address);
         call.enqueue(new Callback<Address>() {
             @Override
             public void onResponse(Call<Address> call, Response<Address> response) {
