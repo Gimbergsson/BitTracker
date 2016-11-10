@@ -62,8 +62,9 @@ public class LookupAddressFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String address_string = address_input_edittext.getText().toString();
+                int offset_string = 50;
                 if(address_string.startsWith("1")) {
-                    getAddressDetails(address_string);
+                    getAddressDetails(address_string, offset_string);
                 }else{
                     Toast.makeText(getContext(), "Address needs to start with a 1", Toast.LENGTH_SHORT).show();
                 }
@@ -72,7 +73,7 @@ public class LookupAddressFragment extends Fragment {
         return view;
     }
 
-    public void getAddressDetails(String address){
+    public void getAddressDetails(String address, int offset){
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -83,11 +84,12 @@ public class LookupAddressFragment extends Fragment {
                 .build();
 
         RetrofitAPI service = retrofit.create(RetrofitAPI.class);
-        Call<Address> call = service.getAddressDetails(address);
+        Call<Address> call = service.getAddressDetails(address, "json", offset);
         call.enqueue(new Callback<Address>() {
             @Override
             public void onResponse(Call<Address> call, Response<Address> response) {
                 Address AddressData = response.body();
+                Log.i("**TAG**", AddressData.toString());
 
                 address_txt.setText(AddressData.getAddress());
                 hash160_txt.setText(AddressData.getHash160());
