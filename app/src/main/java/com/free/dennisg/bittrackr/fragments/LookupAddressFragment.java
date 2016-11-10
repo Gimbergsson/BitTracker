@@ -2,6 +2,9 @@ package com.free.dennisg.bittrackr.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,20 +32,23 @@ import com.free.dennisg.bittrackr.api.*;
 
 public class LookupAddressFragment extends Fragment {
 
-    @BindView(R.id.address) TextView address_txt;
-    @BindView(R.id.hash160) TextView hash160_txt;
-    @BindView(R.id.transactions_done) TextView transactions_done_txt;
-    @BindView(R.id.total_received) TextView total_received_txt;
-    @BindView(R.id.total_sent) TextView total_sent_txt;
-    @BindView(R.id.final_balance) TextView final_balance_txt;
-    @BindView(R.id.transactions) TextView transactions_txt;
+    @BindView(R.id.address)             TextView address_txt;
+    @BindView(R.id.hash160)             TextView hash160_txt;
+    @BindView(R.id.transactions_done)   TextView transactions_done_txt;
+    @BindView(R.id.total_received)      TextView total_received_txt;
+    @BindView(R.id.total_sent)          TextView total_sent_txt;
+    @BindView(R.id.final_balance)       TextView final_balance_txt;
+    @BindView(R.id.transactions)        TextView transactions_txt;
 
-    @BindView(R.id.address_input)
-    EditText address_input_edittext;
-    @BindView(R.id.get_address_info)
-    Button get_address_info_button;
+    @BindView(R.id.address_input)       EditText address_input_edittext;
+    @BindView(R.id.get_address_info)    Button get_address_info_button;
 
     String apiBaseURL = "https://blockchain.info/";
+
+    SwipeRefreshLayout swipeRefreshLayout;
+    TxsAdapter txsAdapter;
+    LinearLayoutManager linearLayoutManager;
+    RecyclerView recycleView;
 
     public static LookupAddressFragment newInstance(int index) {
         LookupAddressFragment fragment = new LookupAddressFragment();
@@ -62,7 +68,7 @@ public class LookupAddressFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String address_string = address_input_edittext.getText().toString();
-                int offset_string = 50;
+                int offset_string = 0;
                 if(address_string.startsWith("1")) {
                     getAddressDetails(address_string, offset_string);
                 }else{
@@ -70,6 +76,27 @@ public class LookupAddressFragment extends Fragment {
                 }
             }
         });
+
+        recycleView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        recycleView.setHasFixedSize(true);
+
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        recycleView.setLayoutManager(linearLayoutManager);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                String address_string = address_input_edittext.getText().toString();
+                int offset_string = 0;
+                if(address_string.startsWith("1")) {
+                    getAddressDetails(address_string, offset_string);
+                }else{
+                    Toast.makeText(getContext(), "Address needs to start with a 1", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return view;
     }
 
@@ -110,6 +137,9 @@ public class LookupAddressFragment extends Fragment {
                             //transactions_txt.setText(transactions_txt.getText() + " " + TxsList.get(i).getHash());
                         }
                     }
+
+                txsAdapter = new TxsAdapter();
+                recycleView.setAdapter(txsAdapter);
             }
 
             @Override
