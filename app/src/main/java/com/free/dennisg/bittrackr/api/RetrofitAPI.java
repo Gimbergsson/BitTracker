@@ -16,6 +16,6 @@ public interface RetrofitAPI {
      * Retrofit get annotation with our URL
      * And our method that will return us details of student.
     */
-    @GET("rawaddr/{address}")
+    @GET("address/{address}/?format=json&limit=51")
     Call<Address> getAddressDetails(@Path("address") String address);
 }

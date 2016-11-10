@@ -16,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,21 +39,23 @@ public class LookupAddressFragment extends Fragment {
     public static LookupAddressFragment newInstance(int index) {
         LookupAddressFragment fragment = new LookupAddressFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("empty", index);
+        bundle.putInt("0", 1);
         fragment.setArguments(bundle);
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i("**Info**", "onCreateView");
+        Log.d("**Info**", "onCreateView");
+
         View view = inflater.inflate(R.layout.lookup_address_fragment, container, false);
+        ButterKnife.bind(this, view);
+
         getAddressDetails();
         return view;
     }
 
-    public void getAddressDetails() {
-
+    public void getAddressDetails(){
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -69,56 +72,31 @@ public class LookupAddressFragment extends Fragment {
             public void onResponse(Call<Address> call, Response<Address> response) {
                 Address AddressData = response.body();
 
-                TextView address_text = (TextView) getView().findViewById(R.id.address);
-                address_text.setText(AddressData.getAddress());
+                address_txt.setText(AddressData.getAddress());
+                hash160_txt.setText(AddressData.getHash160());
+                transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
+                total_received_txt.setText(String.valueOf(AddressData.getTotal_received()));
+                total_sent_txt.setText(String.valueOf(AddressData.getTotal_sent()));
+                final_balance_txt.setText(String.valueOf(AddressData.getFinal_balance()));
+                //transactions_txt.setText(String.valueOf(AddressData.getTxs().size()));
 
-                TextView hash160_text = (TextView) getView().findViewById(R.id.hash160);
-                hash160_text.setText(AddressData.getHash160());
 
-                TextView transactions_done_text = (TextView) getView().findViewById(R.id.transactions_done);
-                transactions_done_text.setText(String.valueOf(AddressData.getN_tx()));
+                    List<Txs> TxsList = AddressData.getTxs();
 
-                //address_txt.setText(AddressData.getAddress());
-                //hash160_txt.setText(AddressData.getHash160());
-                //transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                //total_received_txt.setText(String.valueOf(AddressData.getTotal_received()));
-                //total_sent_txt.setText(String.valueOf(AddressData.getTotal_sent()));
-                //final_balance_txt.setText(String.valueOf(AddressData.getFinal_balance()));
-
+                    for (int i = 0; i < TxsList.size(); i++) {
+                        Log.d("**TAG**", "Msg:  " + TxsList.get(i).getHash() +" : "+String.valueOf(i));
+                        transactions_txt.setText(transactions_txt.getText() + "\n" + TxsList.get(i).getHash());
+                        if (i == 0) {
+                            Log.d("TAGdc", "Msg:  " + TxsList.get(i).getHash() +" : "+String.valueOf(i));
+                            //transactions_txt.setText(transactions_txt.getText() + " " + TxsList.get(i).getHash());
+                        }
+                    }
             }
 
             @Override
             public void onFailure(Call<Address> call, Throwable t) {
                 Log.d("onFailure", t.toString());
             }
-
-            /*
-            @Override
-            public void onResponse(Call<List<Student>> call, Response<List<Student>> response) {
-                try {
-
-                    List<Student> StudentData = response.body();
-
-                    for (int i = 0; i < StudentData.size(); i++) {
-                        if (i == 0) {
-                            Log.d("TAG", "Msg:  " + StudentData.get(i).getStudentName() +" : "+String.valueOf(i));
-                            questionTextView.setText("Question:  " + StudentData.get(i).getStudentName());
-                        }
-                    }
-
-
-                } catch (Exception e) {
-                    Log.d("onResponse", "There is an error");
-                    e.printStackTrace();
-                }
-                mProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onFailure(Call<List<Student>> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-                mProgressBar.setVisibility(View.GONE);
-            }*/
         });
     }
 }

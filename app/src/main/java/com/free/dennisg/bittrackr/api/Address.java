@@ -12,10 +12,10 @@ public class Address {
     private String hash160;
     private String address;
     private int n_tx;
-    /*private int total_received;
-    private int total_sent;
-    private int final_balance;
-    private List<AddressTxs> txs;*/
+    private long total_received;
+    private long total_sent;
+    private long final_balance;
+    private List<Txs> txs;
 
     public String getHash160() {
         return hash160;
@@ -41,8 +41,7 @@ public class Address {
         this.n_tx = n_tx;
     }
 
-    /*
-    public int getTotal_received() {
+    public long getTotal_received() {
         return total_received;
     }
 
@@ -50,7 +49,7 @@ public class Address {
         this.total_received = total_received;
     }
 
-    public int getTotal_sent() {
+    public long getTotal_sent() {
         return total_sent;
     }
 
@@ -58,7 +57,7 @@ public class Address {
         this.total_sent = total_sent;
     }
 
-    public int getFinal_balance() {
+    public long getFinal_balance() {
         return final_balance;
     }
 
@@ -66,12 +65,11 @@ public class Address {
         this.final_balance = final_balance;
     }
 
-    public List<AddressTxs> getTxs() {
+    public List<Txs> getTxs() {
         return txs;
     }
 
-    public void setTxs(List<AddressTxs> txs) {
+    public void setTxs(List<Txs> txs) {
         this.txs = txs;
     }
-    */
 }
