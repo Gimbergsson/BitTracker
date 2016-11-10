@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
@@ -60,7 +61,12 @@ public class LookupAddressFragment extends Fragment {
         get_address_info_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getAddressDetails(address_input_edittext.getText().toString());
+                String address_string = address_input_edittext.getText().toString();
+                if(address_string.startsWith("1")) {
+                    getAddressDetails(address_string);
+                }else{
+                    Toast.makeText(getContext(), "Address needs to start with a 1", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         return view;
