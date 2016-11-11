@@ -22,6 +22,8 @@ import com.free.dennisg.bittrackr.api.TxsAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -40,7 +42,6 @@ public class LookupAddressFragment extends Fragment {
     @BindView(R.id.total_received)      TextView total_received_txt;
     @BindView(R.id.total_sent)          TextView total_sent_txt;
     @BindView(R.id.final_balance)       TextView final_balance_txt;
-    @BindView(R.id.transactions)        TextView transactions_txt;
 
     @BindView(R.id.address_input)       EditText address_input_edittext;
     @BindView(R.id.get_address_info)    Button get_address_info_button;
@@ -103,9 +104,9 @@ public class LookupAddressFragment extends Fragment {
                 address_txt.setText(AddressData.getAddress());
                 hash160_txt.setText(AddressData.getHash160());
                 transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                total_received_txt.setText(String.valueOf(AddressData.getTotal_received()));
-                total_sent_txt.setText(String.valueOf(AddressData.getTotal_sent()));
-                final_balance_txt.setText(String.valueOf(AddressData.getFinal_balance()));
+                total_received_txt.setText(new BigDecimal(AddressData.getTotal_received()).movePointLeft(8).toString());
+                total_sent_txt.setText(new BigDecimal(AddressData.getTotal_sent()).movePointLeft(8).toString());
+                final_balance_txt.setText(new BigDecimal(AddressData.getFinal_balance()).movePointLeft(8).toString());
 
                 List<Txs> txsList = AddressData.getTxs();
 

@@ -71,12 +71,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/final_balance" />
 
-            <TextView
-                android:text="50 newest transaction hashes..."
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/transactions" />
-
         </LinearLayout>
     </ScrollView>
 
