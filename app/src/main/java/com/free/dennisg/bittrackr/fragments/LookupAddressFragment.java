@@ -2,7 +2,7 @@ package com.free.dennisg.bittrackr.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
+import com.free.dennisg.bittrackr.api.RetrofitAPI;
+import com.free.dennisg.bittrackr.api.Txs;
+import com.free.dennisg.bittrackr.api.TxsAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -28,7 +31,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import com.free.dennisg.bittrackr.api.*;
 
 public class LookupAddressFragment extends Fragment {
 
@@ -43,12 +45,12 @@ public class LookupAddressFragment extends Fragment {
     @BindView(R.id.address_input)       EditText address_input_edittext;
     @BindView(R.id.get_address_info)    Button get_address_info_button;
 
+    @BindView(R.id.txs_recycler_view)   RecyclerView recyclerView;
+
     String apiBaseURL = "https://blockchain.info/";
 
-    SwipeRefreshLayout swipeRefreshLayout;
     TxsAdapter txsAdapter;
     LinearLayoutManager linearLayoutManager;
-    RecyclerView recycleView;
 
     public static LookupAddressFragment newInstance(int index) {
         LookupAddressFragment fragment = new LookupAddressFragment();
@@ -67,26 +69,6 @@ public class LookupAddressFragment extends Fragment {
         get_address_info_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String address_string = address_input_edittext.getText().toString();
-                int offset_string = 0;
-                if(address_string.startsWith("1")) {
-                    getAddressDetails(address_string, offset_string);
-                }else{
-                    Toast.makeText(getContext(), "Address needs to start with a 1", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        recycleView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-        recycleView.setHasFixedSize(true);
-
-        linearLayoutManager = new LinearLayoutManager(getActivity());
-        recycleView.setLayoutManager(linearLayoutManager);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
                 String address_string = address_input_edittext.getText().toString();
                 int offset_string = 0;
                 if(address_string.startsWith("1")) {
@@ -124,22 +106,17 @@ public class LookupAddressFragment extends Fragment {
                 total_received_txt.setText(String.valueOf(AddressData.getTotal_received()));
                 total_sent_txt.setText(String.valueOf(AddressData.getTotal_sent()));
                 final_balance_txt.setText(String.valueOf(AddressData.getFinal_balance()));
-                //transactions_txt.setText(String.valueOf(AddressData.getTxs().size()));
 
+                List<Txs> txsList = AddressData.getTxs();
 
-                    List<Txs> TxsList = AddressData.getTxs();
+                txsAdapter = new TxsAdapter(txsList);
+                linearLayoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(txsAdapter);
 
-                    for (int i = 0; i < TxsList.size(); i++) {
-                        Log.d("**TAG**", "Msg:  " + TxsList.get(i).getHash() +" : "+String.valueOf(i));
-                        transactions_txt.setText(transactions_txt.getText() + "\n" + TxsList.get(i).getHash());
-                        if (i == 0) {
-                            Log.d("TAGdc", "Msg:  " + TxsList.get(i).getHash() +" : "+String.valueOf(i));
-                            //transactions_txt.setText(transactions_txt.getText() + " " + TxsList.get(i).getHash());
-                        }
-                    }
-
-                txsAdapter = new TxsAdapter();
-                recycleView.setAdapter(txsAdapter);
+                txsAdapter.notifyDataSetChanged();
             }
 
             @Override
