@@ -104,9 +104,9 @@ public class LookupAddressFragment extends Fragment {
                 address_txt.setText(AddressData.getAddress());
                 hash160_txt.setText(AddressData.getHash160());
                 transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                total_received_txt.setText(new BigDecimal(AddressData.getTotal_received()).movePointLeft(8).toString());
-                total_sent_txt.setText(new BigDecimal(AddressData.getTotal_sent()).movePointLeft(8).toString());
-                final_balance_txt.setText(new BigDecimal(AddressData.getFinal_balance()).movePointLeft(8).toString());
+                total_received_txt.setText(String.valueOf((double)AddressData.getTotal_received() / 100000000));
+                total_sent_txt.setText(String.valueOf((double)AddressData.getTotal_sent() / 100000000));
+                final_balance_txt.setText(String.valueOf((double)AddressData.getFinal_balance() / 100000000));
 
                 List<Txs> txsList = AddressData.getTxs();
 
