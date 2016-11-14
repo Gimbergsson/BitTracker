@@ -1,5 +1,9 @@
 package com.free.dennisg.bittrackr.api;
 
+import android.icu.util.Output;
+
+import java.util.List;
+
 /**
  * Created by Dennis Gimbergsson
  */
@@ -14,6 +18,24 @@ public class Txs {
     private long time;
     private long tx_index;
     private String hash;
+    private List<Inputs> inputs;
+    private List<Out> out;
+
+    public List<Inputs> getInputs() {
+        return inputs;
+    }
+
+    public void setInputs(List<Inputs> inputs) {
+        this.inputs = inputs;
+    }
+
+    public List<Out> getOut() {
+        return out;
+    }
+
+    public void setOut(List<Out> out) {
+        this.out = out;
+    }
 
     public int getVer() {
         return ver;

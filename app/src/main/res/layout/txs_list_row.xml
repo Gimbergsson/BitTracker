@@ -28,14 +28,14 @@
             <TextView
                 android:id="@+id/txs_hash"
                 android:layout_alignParentTop="true"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="mock_text"/>
 
             <TextView
                 android:id="@+id/txs_relayed_by"
                 android:layout_below="@id/txs_hash"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="mock_text"/>
 
@@ -59,7 +59,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:relative_time_prefix="Completed"
+                android:text="mock_text"
                 android:layout_below="@id/txs_size"/>
+
+            <TextView
+                android:id="@+id/txs_out_value"
+                android:layout_width="wrap_content"
+                android:layout_below="@id/txs_block"
+                android:layout_alignParentEnd="true"
+                android:layout_height="wrap_content"
+                android:text="mock_text"/>
 
         </RelativeLayout>
         </android.support.v7.widget.CardView>

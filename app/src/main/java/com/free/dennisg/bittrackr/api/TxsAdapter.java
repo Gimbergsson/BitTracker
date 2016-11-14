@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.free.dennisg.bittrackr.R;
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         @BindView(R.id.txs_block)       TextView mTxsBlock;
         @BindView(R.id.txs_size)        TextView mTxsSize;
         @BindView(R.id.txs_time)        RelativeTimeTextView mTxsTime;
+        @BindView(R.id.txs_out_value)   TextView mTxsOutValue;
 
         TxsViewHolder(View view) {
             super(view);
@@ -56,8 +58,18 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
             holder.mTxsBlock.setText("In block: " + String.valueOf(txs.getBlock_height()));
         }
         holder.mTxsSize.setText(String.valueOf(txs.getSize()) + " Bytes");
-        long txsDate = txs.getTime() * 1000 ;
+        long txsDate = txs.getTime() * 1000;
         holder.mTxsTime.setReferenceTime(txsDate);
+
+        long total_output = 0;
+
+        for(int i = 0; i < txs.getOut().size(); i++){
+            total_output += txs.getOut().get(i).getValue();
+            String total_output_string = String.valueOf((double)total_output / 100000000);
+            BigDecimal d = new BigDecimal(total_output_string);
+            holder.mTxsOutValue.setText("Output: " + d.toPlainString() + " BTC");
+        }
+
     }
 
     @Override

@@ -16,14 +16,14 @@ import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
+import com.free.dennisg.bittrackr.api.MyDeserializer;
+import com.free.dennisg.bittrackr.api.PrevOut;
 import com.free.dennisg.bittrackr.api.RetrofitAPI;
 import com.free.dennisg.bittrackr.api.Txs;
 import com.free.dennisg.bittrackr.api.TxsAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -85,6 +85,7 @@ public class LookupAddressFragment extends Fragment {
 
     public void getAddressDetails(String address, int offset){
         Gson gson = new GsonBuilder()
+                .registerTypeAdapter(PrevOut.class, new MyDeserializer<PrevOut>())
                 .setLenient()
                 .create();
 
@@ -104,9 +105,9 @@ public class LookupAddressFragment extends Fragment {
                 address_txt.setText(AddressData.getAddress());
                 hash160_txt.setText(AddressData.getHash160());
                 transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                total_received_txt.setText(String.valueOf((double)AddressData.getTotal_received() / 100000000));
-                total_sent_txt.setText(String.valueOf((double)AddressData.getTotal_sent() / 100000000));
-                final_balance_txt.setText(String.valueOf((double)AddressData.getFinal_balance() / 100000000));
+                total_received_txt.setText(String.valueOf((double)AddressData.getTotal_received() / 100000000) + " BTC");
+                total_sent_txt.setText(String.valueOf((double)AddressData.getTotal_sent() / 100000000) + " BTC");
+                final_balance_txt.setText(String.valueOf((double)AddressData.getFinal_balance() / 100000000) + " BTC");
 
                 List<Txs> txsList = AddressData.getTxs();
 
