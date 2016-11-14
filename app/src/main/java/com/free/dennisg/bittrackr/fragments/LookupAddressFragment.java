@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
 import com.free.dennisg.bittrackr.api.MyDeserializer;
-import com.free.dennisg.bittrackr.api.PrevOut;
+import com.free.dennisg.bittrackr.api.Prev_out;
 import com.free.dennisg.bittrackr.api.RetrofitAPI;
 import com.free.dennisg.bittrackr.api.Txs;
 import com.free.dennisg.bittrackr.api.TxsAdapter;
@@ -85,8 +85,8 @@ public class LookupAddressFragment extends Fragment {
 
     public void getAddressDetails(String address, int offset){
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(PrevOut.class, new MyDeserializer<PrevOut>())
                 .setLenient()
+                .registerTypeAdapter(Prev_out.class, new MyDeserializer<Prev_out>())
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()

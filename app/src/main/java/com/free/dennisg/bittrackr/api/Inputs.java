@@ -8,7 +8,8 @@ public class Inputs {
 
     //Variables that are in our json
     private long sequence;
-    private PrevOut prevOut;
+    private Prev_out prev_out;
+    private String script;
 
     public long getSequence() {
         return sequence;
@@ -18,12 +19,12 @@ public class Inputs {
         this.sequence = sequence;
     }
 
-    public PrevOut getPrevOut() {
-        return prevOut;
+    public Prev_out getPrev_out() {
+        return prev_out;
     }
 
-    public void setPrevOut(PrevOut prevOut) {
-        this.prevOut = prevOut;
+    public void setPrev_out(Prev_out prev_out) {
+        this.prev_out = prev_out;
     }
 
     public String getScript() {
@@ -33,7 +34,5 @@ public class Inputs {
     public void setScript(String script) {
         this.script = script;
     }
-
-    private String script;
 
 }

@@ -1,6 +1,7 @@
 package com.free.dennisg.bittrackr.api;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -9,8 +10,8 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 
 /**
- * Created by dgimbergsson on 2016-11-14.
- */
+ * Created by Dennis Gimbergsson on 2016-11-14.
+ **/
 
 public class MyDeserializer<T> implements JsonDeserializer<T>
 {
@@ -20,10 +21,11 @@ public class MyDeserializer<T> implements JsonDeserializer<T>
     {
         // Get the "content" element from the parsed JSON
         JsonElement content = je.getAsJsonObject().get("prev_out");
+        GsonBuilder builder = new GsonBuilder();
 
         // Deserialize it. You use a new instance of Gson to avoid infinite recursion
         // to this deserializer
-        return new Gson().fromJson(content, type);
+        return builder.create().fromJson(content, type);
 
     }
 }

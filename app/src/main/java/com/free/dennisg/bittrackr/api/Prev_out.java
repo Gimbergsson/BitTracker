@@ -4,7 +4,7 @@ package com.free.dennisg.bittrackr.api;
  * Created by Dennis Gimbergsson
  */
 
-public class PrevOut {
+public class Prev_out {
 
     //Variables that are in our json
     private boolean spent;

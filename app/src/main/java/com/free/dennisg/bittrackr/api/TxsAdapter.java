@@ -40,6 +40,8 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         @BindView(R.id.txs_size)        TextView mTxsSize;
         @BindView(R.id.txs_time)        RelativeTimeTextView mTxsTime;
         @BindView(R.id.txs_out_value)   TextView mTxsOutValue;
+        @BindView(R.id.txs_in_value)    TextView mTxsInValue;
+        @BindView(R.id.txs_fee)         TextView mTxsFee;
 
         TxsViewHolder(View view) {
             super(view);
@@ -66,9 +68,23 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         for(int i = 0; i < txs.getOut().size(); i++){
             total_output += txs.getOut().get(i).getValue();
             String total_output_string = String.valueOf((double)total_output / 100000000);
-            BigDecimal d = new BigDecimal(total_output_string);
-            holder.mTxsOutValue.setText("Output: " + d.toPlainString() + " BTC");
+            BigDecimal bigDecimal = new BigDecimal(total_output_string);
+            holder.mTxsOutValue.setText("Output: " + bigDecimal.toPlainString() + " BTC");
         }
+
+        long total_input = 0;
+
+        for(int i = 0; i < txs.getInputs().size(); i++){
+            total_input += txs.getInputs().get(i).getPrev_out().getValue();
+            String total_input_string = String.valueOf((double)total_input / 100000000);
+            BigDecimal bigDecimal = new BigDecimal(total_input_string);
+            holder.mTxsInValue.setText("Input: " + bigDecimal.toPlainString() + " BTC");
+        }
+
+        long txs_fee = total_input - total_output;
+        String txs_fee_string = String.valueOf((double)txs_fee / 100000000);
+        BigDecimal bigDecimal = new BigDecimal(txs_fee_string);
+        holder.mTxsFee.setText("Fee: " + bigDecimal.toString() + " BTC");
 
     }
 
