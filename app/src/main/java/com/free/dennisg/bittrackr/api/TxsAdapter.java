@@ -1,17 +1,20 @@
 package com.free.dennisg.bittrackr.api;
 
+import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -20,17 +23,8 @@ import butterknife.ButterKnife;
 
 public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
 
-    private List<Txs> txsList;
-
-    public TxsAdapter(List<Txs> txsList) {
-        this.txsList = txsList;
-    }
-
-    @Override
-    public TxsAdapter.TxsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_list_row, parent, false);
-        return new TxsViewHolder(itemView);
-    }
+    private Context mContext;
+    private final List<Txs> txsList;
 
     public static class TxsViewHolder extends RecyclerView.ViewHolder{
 
@@ -42,6 +36,7 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         @BindView(R.id.txs_out_value)   TextView mTxsOutValue;
         @BindView(R.id.txs_in_value)    TextView mTxsInValue;
         @BindView(R.id.txs_fee)         TextView mTxsFee;
+        @BindView(R.id.txs_details)     TextView mTxsDetails;
 
         TxsViewHolder(View view) {
             super(view);
@@ -49,8 +44,19 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         }
     }
 
+    public TxsAdapter(Context mContext, List<Txs> txsList) {
+        this.mContext = mContext;
+        this.txsList = txsList;
+    }
+
     @Override
-    public void onBindViewHolder(TxsViewHolder holder, int position) {
+    public TxsAdapter.TxsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(mContext).inflate(R.layout.txs_list_row, parent, false);
+        return new TxsViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(final TxsViewHolder holder, int position) {
         Txs txs = txsList.get(position);
         holder.mTxsHashText.setText("Txs hash: " + txs.getHash());
         holder.mTxsRelayedByText.setText("Relayed by: " + txs.getRelayed_by());
@@ -59,7 +65,9 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         }else{
             holder.mTxsBlock.setText("In block: " + String.valueOf(txs.getBlock_height()));
         }
+
         holder.mTxsSize.setText(String.valueOf(txs.getSize()) + " Bytes");
+
         long txsDate = txs.getTime() * 1000;
         holder.mTxsTime.setReferenceTime(txsDate);
 
@@ -86,6 +94,48 @@ public class TxsAdapter extends RecyclerView.Adapter<TxsAdapter.TxsViewHolder> {
         BigDecimal bigDecimal = new BigDecimal(txs_fee_string);
         holder.mTxsFee.setText("Fee: " + bigDecimal.toString() + " BTC");
 
+        holder.mTxsDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPopupMenu(holder.mTxsDetails);
+            }
+        });
+
+    }
+
+    /**
+     * Showing popup menu when tapping on 3 dots
+     */
+    private void showPopupMenu(View view) {
+        // inflate menu
+        PopupMenu popup = new PopupMenu(mContext, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_txs_details, popup.getMenu());
+        popup.setOnMenuItemClickListener(new MyMenuItemClickListener());
+        popup.show();
+    }
+
+    /**
+     * Click listener for popup menu items
+     */
+    private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+
+        public MyMenuItemClickListener() {
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.action_add_favourite:
+                    Toast.makeText(mContext, "Clicked more", Toast.LENGTH_SHORT).show();
+                    return true;
+                case R.id.action_play_next:
+                    Toast.makeText(mContext, "Clicked less", Toast.LENGTH_SHORT).show();
+                    return true;
+                default:
+            }
+            return false;
+        }
     }
 
     @Override
