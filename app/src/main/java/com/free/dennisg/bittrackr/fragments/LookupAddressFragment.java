@@ -122,7 +122,7 @@ public class LookupAddressFragment extends Fragment {
 
                 List<Txs> txsList = AddressData.getTxs();
 
-                txsAdapter = new TxsAdapter(txsList);
+                txsAdapter = new TxsAdapter(getContext(), txsList);
                 linearLayoutManager = new LinearLayoutManager(getContext());
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setLayoutManager(linearLayoutManager);
