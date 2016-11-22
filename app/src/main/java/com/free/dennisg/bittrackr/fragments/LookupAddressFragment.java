@@ -141,6 +141,7 @@ public class LookupAddressFragment extends Fragment {
 
     /*
     * These three functions below are to validate that the user has entered a correct Bitcoin address to lookup.
+    *
      */
 
     public static boolean ValidateBitcoinAddress(String addr) {
