@@ -23,12 +23,16 @@ public class BitcoinAddress {
 
     public static boolean ValidateBitcoinAddress(String addr) {
         if (addr.length() < 26 || addr.length() > 35) return false;
-        byte[] decoded = DecodeBase58(addr, 58, 25);
-        if (decoded == null) return false;
+        if (addr.startsWith("3")){
+            return true;
+        }else {
+            byte[] decoded = DecodeBase58(addr, 58, 25);
+            if (decoded == null) return false;
 
-        byte[] hash = Sha256(decoded, 0, 21, 2);
+            byte[] hash = Sha256(decoded, 0, 21, 2);
 
-        return Arrays.equals(Arrays.copyOfRange(hash, 0, 4), Arrays.copyOfRange(decoded, 21, 25));
+            return Arrays.equals(Arrays.copyOfRange(hash, 0, 4), Arrays.copyOfRange(decoded, 21, 25));
+        }
     }
 
     private static byte[] DecodeBase58(String input, int base, int len) {

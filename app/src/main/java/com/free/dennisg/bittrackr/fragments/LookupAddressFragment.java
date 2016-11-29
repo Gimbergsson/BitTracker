@@ -82,7 +82,7 @@ public class LookupAddressFragment extends Fragment {
             public void onClick(View view) {
                 String address_string = address_input_edittext.getText().toString();
                 int offset = 0;
-                if (ValidateBitcoinAddress(address_string) || address_string.startsWith("3")) {
+                if (ValidateBitcoinAddress(address_string)) {
                     getAddressDetails(address_string, offset);
                 } else {
                     address_input_edittext.setError("This is not an correct Bitcoin address!");
