@@ -110,12 +110,14 @@ public class LookupAddressFragment extends Fragment {
                     Address AddressData = response.body();
                     Log.i("**TAG**", AddressData.toString());
 
+                    String btc = getString(R.string.btc);
+
                     address_txt.setText(AddressData.getAddress());
                     hash160_txt.setText(AddressData.getHash160());
                     transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                    total_received_txt.setText(String.valueOf((double) AddressData.getTotal_received() / 100000000) + " BTC");
-                    total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " BTC");
-                    final_balance_txt.setText(String.valueOf((double) AddressData.getFinal_balance() / 100000000) + " BTC");
+                    total_received_txt.setText(String.valueOf((double) AddressData.getTotal_received() / 100000000) + " " + btc);
+                    total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " " +btc);
+                    final_balance_txt.setText(String.valueOf((double) AddressData.getFinal_balance() / 100000000) + " " + btc);
 
                     List<Txs> txsList = AddressData.getTxs();
 
