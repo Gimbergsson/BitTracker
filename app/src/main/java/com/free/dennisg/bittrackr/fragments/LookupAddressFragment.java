@@ -1,6 +1,5 @@
 package com.free.dennisg.bittrackr.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
@@ -85,9 +83,8 @@ public class LookupAddressFragment extends Fragment {
                 if (ValidateBitcoinAddress(address_string)) {
                     getAddressDetails(address_string, offset);
                 } else {
-                    address_input_edittext.setError("This is not an correct Bitcoin address!");
+                    address_input_edittext.setError("This is not a valid Bitcoin address!");
                 }
-
             }
         });
 
@@ -109,26 +106,30 @@ public class LookupAddressFragment extends Fragment {
         call.enqueue(new Callback<Address>() {
             @Override
             public void onResponse(Call<Address> call, Response<Address> response) {
-                Address AddressData = response.body();
-                Log.i("**TAG**", AddressData.toString());
+                if(response.isSuccessful()) {
+                    Address AddressData = response.body();
+                    Log.i("**TAG**", AddressData.toString());
 
-                address_txt.setText(AddressData.getAddress());
-                hash160_txt.setText(AddressData.getHash160());
-                transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
-                total_received_txt.setText(String.valueOf((double) AddressData.getTotal_received() / 100000000) + " BTC");
-                total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " BTC");
-                final_balance_txt.setText(String.valueOf((double) AddressData.getFinal_balance() / 100000000) + " BTC");
+                    address_txt.setText(AddressData.getAddress());
+                    hash160_txt.setText(AddressData.getHash160());
+                    transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
+                    total_received_txt.setText(String.valueOf((double) AddressData.getTotal_received() / 100000000) + " BTC");
+                    total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " BTC");
+                    final_balance_txt.setText(String.valueOf((double) AddressData.getFinal_balance() / 100000000) + " BTC");
 
-                List<Txs> txsList = AddressData.getTxs();
+                    List<Txs> txsList = AddressData.getTxs();
 
-                txsAdapter = new TxsAdapter(getContext(), txsList);
-                linearLayoutManager = new LinearLayoutManager(getContext());
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(linearLayoutManager);
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-                recyclerView.setAdapter(txsAdapter);
+                    txsAdapter = new TxsAdapter(getContext(), txsList);
+                    linearLayoutManager = new LinearLayoutManager(getContext());
+                    recyclerView.setHasFixedSize(true);
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    recyclerView.setAdapter(txsAdapter);
 
-                txsAdapter.notifyDataSetChanged();
+                    txsAdapter.notifyDataSetChanged();
+                }else{
+                    address_input_edittext.setError("This is not a valid Bitcoin address!");
+                }
             }
 
             @Override
