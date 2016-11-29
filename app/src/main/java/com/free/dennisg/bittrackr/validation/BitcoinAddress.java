@@ -1,5 +1,9 @@
 package com.free.dennisg.bittrackr.validation;
 
+import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -38,7 +42,12 @@ public class BitcoinAddress {
                 p += base * (output[j] & 0xFF);
                 output[j] = (byte) (p % 256);
             }
-            if (p != 0) return null;
+
+            System.out.println(p);
+            if (p != 0 && p != 5){
+                // If 5 = multisig address, If 0 = regular address
+                return null;
+            }
         }
 
         return output;

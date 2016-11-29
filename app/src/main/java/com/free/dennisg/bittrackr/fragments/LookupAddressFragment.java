@@ -1,5 +1,6 @@
 package com.free.dennisg.bittrackr.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
@@ -79,19 +81,20 @@ public class LookupAddressFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String address_string = address_input_edittext.getText().toString();
-                int offset_string = 0;
-                if (ValidateBitcoinAddress(address_string)) {
-                    getAddressDetails(address_string, offset_string);
+                int offset = 0;
+                if (ValidateBitcoinAddress(address_string) || address_string.startsWith("3")) {
+                    getAddressDetails(address_string, offset);
                 } else {
                     address_input_edittext.setError("This is not an correct Bitcoin address!");
                 }
+
             }
         });
 
         return view;
     }
 
-    public void getAddressDetails(String address, int offset) {
+    public void getAddressDetails(String address_string, int offset) {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -102,7 +105,7 @@ public class LookupAddressFragment extends Fragment {
                 .build();
 
         RetrofitAPI service = retrofit.create(RetrofitAPI.class);
-        Call<Address> call = service.getAddressDetails(address, "json", offset);
+        Call<Address> call = service.getAddressDetails(address_string, "json", offset);
         call.enqueue(new Callback<Address>() {
             @Override
             public void onResponse(Call<Address> call, Response<Address> response) {
