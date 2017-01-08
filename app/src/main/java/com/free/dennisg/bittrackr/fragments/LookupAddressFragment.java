@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.free.dennisg.bittrackr.R;
 import com.free.dennisg.bittrackr.api.Address;
 import com.free.dennisg.bittrackr.api.RetrofitAPI;
+import com.free.dennisg.bittrackr.api.Ticker;
 import com.free.dennisg.bittrackr.api.Txs;
 import com.free.dennisg.bittrackr.api.TxsAdapter;
 import com.google.gson.Gson;
@@ -61,6 +62,8 @@ public class LookupAddressFragment extends Fragment {
     TxsAdapter txsAdapter;
     LinearLayoutManager linearLayoutManager;
 
+    double mSEKLast;
+
     public static LookupAddressFragment newInstance(int index) {
         LookupAddressFragment fragment = new LookupAddressFragment();
         Bundle bundle = new Bundle();
@@ -75,20 +78,29 @@ public class LookupAddressFragment extends Fragment {
         View view = inflater.inflate(R.layout.lookup_address_fragment, container, false);
         ButterKnife.bind(this, view);
 
+        String address_string = address_input_edittext.getText().toString();
+        if(ValidateBitcoinAddress(address_string)){
+            validateAndGetAddress();
+        }
+
         get_address_info_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String address_string = address_input_edittext.getText().toString();
-                int offset = 0;
-                if (ValidateBitcoinAddress(address_string)) {
-                    getAddressDetails(address_string, offset);
-                } else {
-                    address_input_edittext.setError("This is not a valid Bitcoin address!");
-                }
+                validateAndGetAddress();
             }
         });
 
         return view;
+    }
+
+    public void validateAndGetAddress(){
+        String address_string = address_input_edittext.getText().toString();
+        int offset = 0;
+        if (ValidateBitcoinAddress(address_string)) {
+            getAddressDetails(address_string, offset);
+        } else {
+            address_input_edittext.setError("This is not a valid Bitcoin address!");
+        }
     }
 
     public void getAddressDetails(String address_string, int offset) {
@@ -102,8 +114,32 @@ public class LookupAddressFragment extends Fragment {
                 .build();
 
         RetrofitAPI service = retrofit.create(RetrofitAPI.class);
-        Call<Address> call = service.getAddressDetails(address_string, "json", offset);
-        call.enqueue(new Callback<Address>() {
+
+        Call<Ticker> tickerCall = service.getTicker();
+        tickerCall.enqueue(new Callback<Ticker>() {
+            @Override
+            public void onResponse(Call<Ticker> call, Response<Ticker> response) {
+                if(response.isSuccessful()) {
+                    //Apply response to POJO
+                    Ticker tickerData = response.body();
+                    mSEKLast = tickerData.getSEK().getLast();
+                    Log.e("TAG", String.valueOf(mSEKLast));
+
+                    String btc = getString(R.string.btc);
+
+                }else{
+                    Log.e("Failure", "Something went wrong with getting ticker data");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Ticker> call, Throwable t) {
+                Log.d("onFailure", t.toString());
+            }
+        });
+
+        Call<Address> addressCall = service.getAddressDetails(address_string, "json", offset);
+        addressCall.enqueue(new Callback<Address>() {
             @Override
             public void onResponse(Call<Address> call, Response<Address> response) {
                 if(response.isSuccessful()) {
@@ -114,14 +150,15 @@ public class LookupAddressFragment extends Fragment {
 
                     address_txt.setText(AddressData.getAddress());
                     hash160_txt.setText(AddressData.getHash160());
-                    transactions_done_txt.setText(String.valueOf(AddressData.getN_tx()));
+                    transactions_done_txt.setText("1 BTC = " + String.valueOf(mSEKLast) + "SEK");
                     total_received_txt.setText(String.valueOf((double) AddressData.getTotal_received() / 100000000) + " " + btc);
-                    total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " " +btc);
-                    final_balance_txt.setText(String.valueOf((double) AddressData.getFinal_balance() / 100000000) + " " + btc);
+                    total_sent_txt.setText(String.valueOf((double) AddressData.getTotal_sent() / 100000000) + " " + btc);
+                    final_balance_txt.setText(String.valueOf(((double) AddressData.getFinal_balance()) + " " + String.valueOf(((double) AddressData
+                            .getFinal_balance() * mSEKLast) / 100000000) + " SEK"));
 
                     List<Txs> txsList = AddressData.getTxs();
 
-                    txsAdapter = new TxsAdapter(getContext(), txsList);
+                    txsAdapter = new TxsAdapter(getContext(), address_input_edittext.getText().toString(), txsList);
                     linearLayoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setHasFixedSize(true);
                     recyclerView.setLayoutManager(linearLayoutManager);
@@ -140,4 +177,5 @@ public class LookupAddressFragment extends Fragment {
             }
         });
     }
+
 }

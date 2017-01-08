@@ -19,4 +19,7 @@ public interface RetrofitAPI {
     */
     @GET("address/{address}")
     Call<Address> getAddressDetails(@Path("address") String address, @Query("format") String format, @Query("offset") int offset);
+
+    @GET("ticker")
+    Call<Ticker> getTicker();
 }

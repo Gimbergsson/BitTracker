@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:text="3Nxwenay9Z8Lc9JBiywExpnEFiLp6Afp8v"
+                android:text="1Gimbergzr2c3C5KcGjLZSM1cCUMW4PfyY"
                 android:ems="10"
                 android:id="@+id/address_input"
                 android:hint="Enter Bitcoin address" />
